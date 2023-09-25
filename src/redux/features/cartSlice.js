@@ -7,12 +7,29 @@ export const cartSlice = createSlice({
   initialState,
   reducers: {
     add: (state, action) => {
-      state.push(action.payload);
+      const productToAdd = action.payload;
+      const existingProduct = state.find(item => item.id === productToAdd.id);
+      
+      if (existingProduct) {
+        existingProduct.quantity += 1;
+      } else {
+        state.push({ ...productToAdd, quantity: 1 });
+      }
     },
     remove: (state, action) => {
-      return state.filter((item) => item.id !== action.payload);
+      const productId = action.payload;
+      const existingProduct = state.find(item => item.id === productId);
+      
+      if (existingProduct) {
+        if (existingProduct.quantity > 1) {
+          existingProduct.quantity -= 1;
+        } else {
+          return state.filter(item => item.id !== productId);
+        }
+      }
     },
   },
 });
+
 export const { add, remove } = cartSlice.actions;
 export default cartSlice;

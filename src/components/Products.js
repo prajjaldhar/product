@@ -1,12 +1,14 @@
 import React, { useEffect, useState } from "react";
 import Card from "react-bootstrap/Card";
 import Button from "react-bootstrap/Button";
-import { useDispatch } from "react-redux";
-import { add } from "../redux/features/cartSlice";
+import { useDispatch, useSelector } from "react-redux";
+import { add, remove } from "../redux/features/cartSlice";
 
 const Products = () => {
   const dispatch = useDispatch();
   const [products, setProducts] = useState([]);
+
+  const cartItems = useSelector((state) => state.cart);
 
   const apiUrl = "https://fakestoreapi.com/products";
 
@@ -24,9 +26,18 @@ const Products = () => {
   }, []);
 
   const addToCart = (product) => {
-    //dispatch a action
     dispatch(add(product));
   };
+
+  const removeFromCart = (productId) => {
+    dispatch(remove(productId));
+  };
+
+  const getCartItemQuantity = (productId) => {
+    const cartItem = cartItems.find((item) => item.id === productId);
+    return cartItem ? cartItem.quantity : 0;
+  };
+
   const cards = products.map((product) => (
     <div className="col-md-4" key={product.id} style={{ marginBottom: "10px" }}>
       <Card className="h-100 d-flex flex-column">
@@ -40,12 +51,20 @@ const Products = () => {
         <Card.Body className="d-flex flex-column align-items-center justify-content-center">
           <Card.Title>{product.title}</Card.Title>
           <Card.Text>INR: {product.price}</Card.Text>
+          <Card.Text>Selected: {getCartItemQuantity(product.id)}</Card.Text>
           <Button
             variant="primary"
-            style={{ width: "130px" }}
+            style={{ width: "130px", marginBottom: "10px" }}
             onClick={() => addToCart(product)}
           >
             Add To Cart
+          </Button>
+          <Button
+            variant="danger"
+            style={{ width: "130px" }}
+            onClick={() => removeFromCart(product.id)}
+          >
+            Remove Item
           </Button>
         </Card.Body>
       </Card>
